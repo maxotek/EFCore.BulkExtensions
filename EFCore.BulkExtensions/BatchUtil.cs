@@ -202,7 +202,7 @@ namespace EFCore.BulkExtensions
             {
                 var value = Expression.Lambda(expression).Compile().DynamicInvoke();
                 var parmName = $"param_{sqlParameters.Count}";
-                sqlParameters.Add(new SqlParameter(parmName, value));
+                sqlParameters.Add(new SqlParameter(parmName, value ?? DBNull.Value));
                 sqlColumns.Append($" @{parmName}");
             }
         }
