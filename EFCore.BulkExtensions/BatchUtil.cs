@@ -27,7 +27,9 @@ namespace EFCore.BulkExtensions
         public static string GetSqlDelete<T>(IQueryable<T> query, DatabaseProvider provider) where T : class, new()
         {
             (string fromSql, string whereSql, string tableAlias) = GetBatchSql(query);
-            return $"DELETE FROM {fromSql}{whereSql}";
+            
+            var sql = provider.GetDeleteQuery(fromSql, whereSql, tableAlias);
+            return sql;
         }
 
         // SELECT [a].[Column1], [a].[Column2], .../r/n
@@ -60,7 +62,9 @@ namespace EFCore.BulkExtensions
             var columnNameValueDict = TableInfo.CreateInstance(GetDbContext(query), new List<T>(), OperationType.Read, new BulkConfig()).PropertyColumnNamesDict;
             CreateUpdateBody(columnNameValueDict, tableAlias, expression.Body, ref sqlColumns, ref sqlParameters, provider);
 
-            return ($"UPDATE {fromSql} SET {sqlColumns.ToString()} {whereSql}", sqlParameters);
+            var sql = provider.GetUpdateQuery(fromSql, sqlColumns, whereSql, tableAlias);
+
+            return (sql, sqlParameters);
         }
 
         public static (string, string, string) GetBatchSql<T>(IQueryable<T> query) where T : class, new()

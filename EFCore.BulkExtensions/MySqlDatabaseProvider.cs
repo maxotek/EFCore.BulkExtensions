@@ -12,6 +12,7 @@
 #endregion
 
 using System;
+using System.Text;
 using MySql.Data.MySqlClient;
 
 namespace EFCore.BulkExtensions
@@ -36,6 +37,17 @@ namespace EFCore.BulkExtensions
         public override string EscapeObject(string objectName)
         {
             return $"`{objectName}`";
+        }
+
+        public override string GetUpdateQuery(string fromSql, StringBuilder sqlColumns, string whereSql,
+            string tableAlias)
+        {
+            return $"UPDATE {fromSql} SET {sqlColumns.ToString()} {whereSql}";
+        }
+
+        public override string GetDeleteQuery(string fromSql, string whereSql, string tableAlias)
+        {
+            return $"DELETE FROM {fromSql}{whereSql}";
         }
     }
 }

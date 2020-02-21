@@ -13,6 +13,7 @@
 
 using System;
 using System.Data.SqlClient;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 
@@ -38,5 +39,9 @@ namespace EFCore.BulkExtensions
                     return new SqlServerDatabaseProvider();
             }
         }
+
+        public abstract string GetUpdateQuery(string fromSql, StringBuilder sqlColumns, string whereSql, string tableAlias);
+        
+        public abstract string GetDeleteQuery(string fromSql, string whereSql, string tableAlias);
     }
 }

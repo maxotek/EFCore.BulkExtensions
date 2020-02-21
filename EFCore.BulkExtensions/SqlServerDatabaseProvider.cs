@@ -13,6 +13,7 @@
 
 using System;
 using System.Data.SqlClient;
+using System.Text;
 
 namespace EFCore.BulkExtensions
 {
@@ -36,6 +37,17 @@ namespace EFCore.BulkExtensions
         public override string EscapeObject(string objectName)
         {
             return $"[{objectName}]";
+        }
+
+        public override string GetUpdateQuery(string fromSql, StringBuilder sqlColumns, string whereSql,
+            string tableAlias)
+        {
+            return $"UPDATE {tableAlias} SET {sqlColumns} FROM {fromSql} {whereSql}";
+        }
+
+        public override string GetDeleteQuery(string fromSql, string whereSql, string tableAlias)
+        {
+            return $"DELETE {tableAlias} FROM {fromSql}{whereSql}";
         }
     }
 }
