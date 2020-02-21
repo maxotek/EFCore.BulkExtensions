@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using MySql.Data.MySqlClient;
 
 namespace EFCore.BulkExtensions
 {
@@ -12,7 +14,8 @@ namespace EFCore.BulkExtensions
         public static int BatchDelete<T>(this IQueryable<T> query) where T : class, new()
         {
             DbContext context = BatchUtil.GetDbContext(query);
-            string sql = BatchUtil.GetSqlDelete(query);
+            var provider = DatabaseProvider.Get(context);
+            string sql = BatchUtil.GetSqlDelete(query, provider);
             return context.Database.ExecuteSqlCommand(sql);
         }
 
@@ -27,7 +30,9 @@ namespace EFCore.BulkExtensions
         public static int BatchUpdate<T>(this IQueryable<T> query, Expression<Func<T, T>> updateExpression) where T : class, new()
         {
             var context = BatchUtil.GetDbContext(query);
-            var (sql, sqlParameters) = BatchUtil.GetSqlUpdate(query, updateExpression);
+            var provider = DatabaseProvider.Get(context);
+
+            var (sql, sqlParameters) = BatchUtil.GetSqlUpdate(query, updateExpression, provider);
             return  context.Database.ExecuteSqlCommand(sql, sqlParameters);
         }
 
@@ -36,7 +41,9 @@ namespace EFCore.BulkExtensions
         public static async Task<int> BatchDeleteAsync<T>(this IQueryable<T> query) where T : class, new()
         {
             DbContext context = BatchUtil.GetDbContext(query);
-            string sql = BatchUtil.GetSqlDelete(query);
+            var provider = DatabaseProvider.Get(context);
+
+            string sql = BatchUtil.GetSqlDelete(query, provider);
             return await context.Database.ExecuteSqlCommandAsync(sql);
         }
 
@@ -50,8 +57,11 @@ namespace EFCore.BulkExtensions
         public static async Task<int> BatchUpdateAsync<T>(this IQueryable<T> query, Expression<Func<T, T>> updateExpression) where T : class, new()
         {
             var context = BatchUtil.GetDbContext(query);
-            var (sql, sqlParameters) = BatchUtil.GetSqlUpdate(query, updateExpression);
+            var provider = DatabaseProvider.Get(context);
+
+            var (sql, sqlParameters) = BatchUtil.GetSqlUpdate(query, updateExpression, provider);
             return await context.Database.ExecuteSqlCommandAsync(sql, sqlParameters);
         }
+
     }
 }
