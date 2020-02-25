@@ -72,8 +72,8 @@ namespace EFCore.BulkExtensions
             string sqlQuery = query.ToSql();
             string tableAlias = GetTableAlias<T>(sqlQuery);
             
-            int indexFROM = sqlQuery.IndexOf(Environment.NewLine);
-            var indexWHERE = sqlQuery.IndexOf(Environment.NewLine, indexFROM + 1);
+            int indexFROM = sqlQuery.IndexOf("\r\n");
+            var indexWHERE = sqlQuery.IndexOf("\r\n", indexFROM + 1);
 
             string fromSql = sqlQuery.Substring(indexFROM + 7, indexWHERE - indexFROM - 7);
             string whereSql = sqlQuery.Substring(indexWHERE, sqlQuery.Length - indexWHERE);
