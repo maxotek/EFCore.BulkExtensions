@@ -71,13 +71,11 @@ namespace EFCore.BulkExtensions
         {
             string sqlQuery = query.ToSql();
             string tableAlias = GetTableAlias<T>(sqlQuery);
+
+            var parts = sqlQuery.Split(new[] {'\n', '\r'}, 3, StringSplitOptions.RemoveEmptyEntries);
+            var fromSql = parts[1].Split(new[] {"FROM "}, 2, StringSplitOptions.None)[1];
+            var whereSql = parts[2];
             
-            int indexFROM = sqlQuery.IndexOf("\r\n");
-            var indexWHERE = sqlQuery.IndexOf("\r\n", indexFROM + 1);
-
-            string fromSql = sqlQuery.Substring(indexFROM + 7, indexWHERE - indexFROM - 7);
-            string whereSql = sqlQuery.Substring(indexWHERE, sqlQuery.Length - indexWHERE);
-
             return (EscapeBraces(fromSql), EscapeBraces(whereSql), tableAlias);
         }
 
