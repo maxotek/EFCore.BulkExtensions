@@ -60,6 +60,7 @@ namespace EFCore.BulkExtensions
             var provider = DatabaseProvider.Get(context);
 
             var (sql, sqlParameters) = BatchUtil.GetSqlUpdate(query, updateExpression, provider);
+            Console.WriteLine(sql);
             return await context.Database.ExecuteSqlCommandAsync(sql, sqlParameters);
         }
 
