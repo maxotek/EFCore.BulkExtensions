@@ -26,7 +26,7 @@ namespace EFCore.BulkExtensions
         // WHERE [a].[Columns] = FilterValues
         public static string GetSqlDelete<T>(IQueryable<T> query, DatabaseProvider provider) where T : class, new()
         {
-            (string fromSql, string whereSql, string tableAlias) = GetBatchSql(query);
+            (string fromSql, string whereSql, string tableAlias) = GetBatchSql(query, provider);
             
             var sql = provider.GetDeleteQuery(fromSql, whereSql, tableAlias);
             return sql;
@@ -39,9 +39,10 @@ namespace EFCore.BulkExtensions
         // UPDATE [a] SET [UpdateColumns] = N'updateValues'
         // FROM [Table] AS [a]
         // WHERE [a].[Columns] = FilterValues
-        public static (string, List<SqlParameter>) GetSqlUpdate<T>(IQueryable<T> query, DbContext context, T updateValues, List<string> updateColumns) where T : class, new()
+        public static (string, List<SqlParameter>) GetSqlUpdate<T>(IQueryable<T> query, DbContext context,
+            T updateValues, List<string> updateColumns, DatabaseProvider provider) where T : class, new()
         {
-            (string fromSql, string whereSql, string tableAlias) = GetBatchSql(query);
+            (string fromSql, string whereSql, string tableAlias) = GetBatchSql(query, provider);
             var sqlParameters = new List<SqlParameter>();
             string sqlSET = GetSqlSetSegment(context, updateValues, updateColumns, sqlParameters);
             return ($"UPDATE {fromSql} {sqlSET}{whereSql}", sqlParameters);
@@ -56,7 +57,7 @@ namespace EFCore.BulkExtensions
         /// <returns></returns>
         public static (string, List<DbParameter>) GetSqlUpdate<T>(IQueryable<T> query, Expression<Func<T, T>> expression, DatabaseProvider provider) where T : class, new()
         {
-            (string fromSql, string  whereSql, string tableAlias) = GetBatchSql(query);
+            (string fromSql, string  whereSql, string tableAlias) = GetBatchSql(query, provider);
             var sqlColumns = new StringBuilder();
             var sqlParameters = new List<DbParameter>();
             var columnNameValueDict = TableInfo.CreateInstance(GetDbContext(query), new List<T>(), OperationType.Read, new BulkConfig()).PropertyColumnNamesDict;
@@ -67,10 +68,10 @@ namespace EFCore.BulkExtensions
             return (sql, sqlParameters);
         }
 
-        public static (string, string, string) GetBatchSql<T>(IQueryable<T> query) where T : class, new()
+        public static (string, string, string) GetBatchSql<T>(IQueryable<T> query, DatabaseProvider provider) where T : class, new()
         {
             string sqlQuery = query.ToSql();
-            string tableAlias = GetTableAlias<T>(sqlQuery);
+            string tableAlias = GetTableAlias<T>(sqlQuery, provider);
 
             var parts = sqlQuery.Split(new[] {'\n', '\r'}, 3, StringSplitOptions.RemoveEmptyEntries);
             var fromSql = parts[1].Split(new[] {"FROM "}, 2, StringSplitOptions.None)[1];
@@ -86,9 +87,9 @@ namespace EFCore.BulkExtensions
             return sql;
         }
 
-        private static string GetTableAlias<T>(string sqlQuery) where T : class, new()
+        private static string GetTableAlias<T>(string sqlQuery, DatabaseProvider provider) where T : class, new()
         {
-            var escaper = sqlQuery[7] == '`' ? '`' : ']';
+            var escaper = provider.GetEndObjectEscaper();
             return sqlQuery.Substring(8, sqlQuery.IndexOf(escaper, 8) - 8);
         }
 

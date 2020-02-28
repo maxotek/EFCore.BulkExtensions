@@ -19,6 +19,7 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="2.1.0" />
     <PackageReference Include="MySqlConnector" Version="0.42.1" />
     <PackageReference Include="System.Data.SqlClient" Version="4.5.0" />
+    <PackageReference Include="FirebirdSql.EntityFrameworkCore.Firebird" Version="6.5.0" />
   </ItemGroup>
 
 </Project>

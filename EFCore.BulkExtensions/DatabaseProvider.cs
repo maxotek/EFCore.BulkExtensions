@@ -12,10 +12,8 @@
 #endregion
 
 using System;
-using System.Data.SqlClient;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using MySql.Data.MySqlClient;
 
 namespace EFCore.BulkExtensions
 {
@@ -30,18 +28,26 @@ namespace EFCore.BulkExtensions
 
         public static DatabaseProvider Get(DbContext context)
         {
-            switch (context.Database.ProviderName)
+            var providerName = context.Database.ProviderName;
+            switch (providerName)
             {
+                case "Microsoft.EntityFrameworkCore.SqlServer":
+                    return new SqlServerDatabaseProvider();
+
                 case "Pomelo.EntityFrameworkCore.MySql":
                     return new MySqlDatabaseProvider();
 
+                case "FirebirdSql.EntityFrameworkCore.Firebird":
+                    return new FbDatabaseProvider();
+
                 default:
-                    return new SqlServerDatabaseProvider();
+                    throw new Exception($"Unsupported database provider: {providerName}");
             }
         }
 
-        public abstract string GetUpdateQuery(string fromSql, StringBuilder sqlColumns, string whereSql, string tableAlias);
-        
+        public abstract string GetUpdateQuery(string fromSql, StringBuilder sqlColumns, string whereSql,
+            string tableAlias);
+
         public abstract string GetDeleteQuery(string fromSql, string whereSql, string tableAlias);
     }
 }

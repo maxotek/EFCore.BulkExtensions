@@ -1,5 +1,4 @@
 ﻿#region Copyright
-
 // Quantum AI CONFIDENTIAL INFORMATION
 // © 2020 Quantum AI, Inc.
 // All Rights Reserved
@@ -8,35 +7,34 @@
 // of the Quantum AI, Inc.  Any reproduction, disclosure, or use
 // in whole or in part is expressly prohibited, except as may be
 // specifically authorized by prior written agreement.
-
 #endregion
 
 using System;
 using System.Text;
-using MySql.Data.MySqlClient;
+using FirebirdSql.Data.FirebirdClient;
 
 namespace EFCore.BulkExtensions
 {
-    public class MySqlDatabaseProvider : DatabaseProvider
+    public class FbDatabaseProvider : DatabaseProvider
     {
         public override Type GetParameterType()
         {
-            return typeof(MySqlParameter);
+            return typeof(FbParameter);
         }
 
         public override char GetStartObjectEscaper()
         {
-            return '`';
+            return '"';
         }
 
         public override char GetEndObjectEscaper()
         {
-            return '`';
+            return '"';
         }
 
         public override string EscapeObject(string objectName)
         {
-            return $"`{objectName}`";
+            return $"\"{objectName}\"";
         }
 
         public override string GetUpdateQuery(string fromSql, StringBuilder sqlColumns, string whereSql,
