@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\temp\NETProvider\Provider\src\FirebirdSql.EntityFrameworkCore.Firebird\FirebirdSql.EntityFrameworkCore.Firebird.csproj" />
+    <ProjectReference Include="..\..\NETProvider\Provider\src\FirebirdSql.EntityFrameworkCore.Firebird\FirebirdSql.EntityFrameworkCore.Firebird.csproj" />
   </ItemGroup>
 
 </Project>
